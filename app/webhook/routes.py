@@ -1,6 +1,7 @@
 from flask import Blueprint, json, request, jsonify, render_template
 from datetime import datetime
 from app.extensions import mongo
+
 webhook = Blueprint('Webhook', __name__, url_prefix="/webhook")
 
 
@@ -25,7 +26,7 @@ def receiver():
         elif event_type == 'pull_request':
             pr_action = data['action']
             print(pr_action)
-            if pr_action == "reopened":
+            if pr_action == "reopened" or pr_action == "opened":
                 event = {
                     "type": "pull_request",
                     "author": data['sender']['login'],
