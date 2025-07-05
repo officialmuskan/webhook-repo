@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GitHub Event Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #333;
+
+    }
+    h1 {
+        font-size:25px;
+      color: #f6f8fa;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .pull_request{
+    border-left: 4px solid #b388ff;
+    }
+    .push{
+    border-left: 4px solid #f48fb1;
+    }
+
+    .merge{
+    border-left: 4px solid #80deea;
+    }
+
+
+
+
+    .container{
+    display:flex;
+      margin:auto;
+    justify-content:center;
+      height: 100vh;
+    }
+    li {
+      color:#f6f8fa;
+      background-color: #222;
+      margin-bottom: 25px;
+      padding: 15px;
+      font-size: 1.1rem;
+      border-left: 4px solid #28a745;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div>
+    <h1>GitHub Activity Feed</h1>
+  <ul id="events"></ul>
+
+
+  </div>
+
+</div>
+
+
+  <script>
+    async function fetchEvents() {
+      const res = await fetch('/webhook/events');
+      const data = await res.json();
+      console.log(data)
+      let className = "event-item";
+      const list = document.getElementById('events');
+      list.innerHTML = '';
+
+      data.reverse().forEach(ev => {
+        const date = new Date(ev.timestamp).toUTCString();
+        let text = "";
+
+        if (ev.type === "push") {
+          text = `${ev.author} pushed to ${ev.to_branch} on ${date}`;
+          className += " push";
+        } else if (ev.type === "pull_request") {
+          text = `${ev.author} submitted a pull request from ${ev.from_branch} to ${ev.to_branch} on ${date}`;
+          className += " pull_request";
+        } else if (ev.type === "merge") {
+          text = `${ev.author} merged branch ${ev.from_branch} to ${ev.to_branch} on ${date}`;
+          className += " merge";
+        }
+
+        const li = document.createElement('li');
+        li.textContent = text;
+        li.className = className;
+        list.appendChild(li);
+      });
+    }
+
+    fetchEvents();
+    setInterval(fetchEvents, 15000);
+  </script>
+</body>
+</html>
